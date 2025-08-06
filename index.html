@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人文档中心</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" id="highlight-theme">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/5.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部导航 -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">📚 个人文档中心</h1>
+                <div class="header-controls">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="搜索文档...">
+                        <button id="searchBtn">🔍</button>
+                    </div>
+                    <button id="themeToggle" class="theme-toggle">🌙</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- 侧边栏 -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3>分类</h3>
+                    <ul id="categoryList" class="category-list">
+                        <li><a href="#" data-category="all" class="active">全部</a></li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>标签</h3>
+                    <div id="tagList" class="tag-list"></div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>最近更新</h3>
+                    <ul id="recentList" class="recent-list"></ul>
+                </div>
+            </aside>
+
+            <!-- 主内容区域 -->
+            <main class="content">
+                <div id="docList" class="doc-list">
+                    <!-- 文档列表将在这里动态生成 -->
+                </div>
+                
+                <div id="docContent" class="doc-content hidden">
+                    <div class="doc-content-header">
+                        <button id="backBtn" class="back-btn">← 返回列表</button>
+                        <button id="editBtn" class="edit-btn">✏️ 编辑</button>
+                    </div>
+                    <div id="docBody"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 添加新文档的模态框 -->
+    <div id="addDocModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>添加新文档</h2>
+            <form id="addDocForm">
+                <div class="form-group">
+                    <label for="docTitle">标题：</label>
+                    <input type="text" id="docTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="docCategory">分类：</label>
+                    <input type="text" id="docCategory" placeholder="技术笔记">
+                </div>
+                <div class="form-group">
+                    <label for="docTags">标签（用逗号分隔）：</label>
+                    <input type="text" id="docTags" placeholder="JavaScript, 前端">
+                </div>
+                <div class="form-group">
+                    <label>选择输入方式：</label>
+                    <div class="input-type-selector">
+                        <label>
+                            <input type="radio" name="inputType" value="manual" checked>
+                            手动输入
+                        </label>
+                        <label>
+                            <input type="radio" name="inputType" value="file">
+                            上传MD文件
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group" id="manualInput">
+                    <label for="docContent">内容（Markdown格式）：</label>
+                    <textarea id="docContentInput" rows="15" placeholder="# 标题&#10;&#10;这里写你的内容..."></textarea>
+                </div>
+                <div class="form-group hidden" id="fileInput">
+                    <label for="mdFileInput">选择Markdown文件：</label>
+                    <input type="file" id="mdFileInput" accept=".md,.markdown,.txt" multiple>
+                    <div id="filePreview" class="file-preview"></div>
+                </div>
+                <button type="submit">保存文档</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 编辑文档的模态框 -->
+    <div id="editDocModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-edit">&times;</span>
+            <h2>编辑文档</h2>
+            <form id="editDocForm">
+                <div class="form-group">
+                    <label for="editDocTitle">标题：</label>
+                    <input type="text" id="editDocTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDocCategory">分类：</label>
+                    <input type="text" id="editDocCategory" placeholder="技术笔记">
+                </div>
+                <div class="form-group">
+                    <label for="editDocTags">标签（用逗号分隔）：</label>
+                    <input type="text" id="editDocTags" placeholder="JavaScript, 前端">
+                </div>
+                <div class="form-group">
+                    <label for="editDocContentInput">内容（Markdown格式）：</label>
+                    <textarea id="editDocContentInput" rows="20" placeholder="# 标题&#10;&#10;这里写你的内容..."></textarea>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" id="cancelEditBtn" class="cancel-btn">取消</button>
+                    <button type="submit" class="save-btn">保存更改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 浮动添加按钮 -->
+    <button id="addDocBtn" class="add-doc-btn">+</button>
+
+    <!-- 装饰性角色元素 -->
+    <div id="marioDecoration" class="character-decoration mario-decoration">
+        <div class="mario-character">🔍</div>
+        <div class="mario-text">Let's explore!</div>
+    </div>
+
+    <div id="snorlaxDecoration" class="character-decoration snorlax-decoration hidden">
+        <div class="snorlax-character">📚💤</div>
+        <div class="snorlax-text">Reading...</div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
